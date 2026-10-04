@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.user
+# symlink/junction to <game>/BepInEx/interop (see README)
+/interop
+
+# remembers your game folder for scripts/build.ps1
+/.gamedir

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiceModders.UiTweaks</AssemblyName>
+    <RootNamespace>DiceModders.UiTweaks</RootNamespace>
+    <Description>Chat, event log and scoreboard declutter options for Dice Kingdoms</Description>
+  </PropertyGroup>
+</Project>

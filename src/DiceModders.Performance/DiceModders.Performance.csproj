@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiceModders.Performance</AssemblyName>
+    <RootNamespace>DiceModders.Performance</RootNamespace>
+    <Description>Performance helpers and a frame-time probe for Dice Kingdoms</Description>
+  </PropertyGroup>
+</Project>

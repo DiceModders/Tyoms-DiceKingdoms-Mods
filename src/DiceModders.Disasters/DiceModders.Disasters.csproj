@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiceModders.Disasters</AssemblyName>
+    <RootNamespace>DiceModders.Disasters</RootNamespace>
+    <Description>Tunable disaster rules (meteorite vs. castle) for Dice Kingdoms</Description>
+  </PropertyGroup>
+</Project>

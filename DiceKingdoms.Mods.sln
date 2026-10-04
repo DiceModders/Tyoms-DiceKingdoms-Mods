@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D0262BBF-D88B-408B-A0D6-ED117A519B64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceModders.Cheats", "src\DiceModders.Cheats\DiceModders.Cheats.csproj", "{4F404FBA-EE50-4BCD-843E-5A4ACFC64D30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceModders.IslandTools", "src\DiceModders.IslandTools\DiceModders.IslandTools.csproj", "{2CE7152A-82B9-455C-9AE9-BB2BA42B818C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceModders.Performance", "src\DiceModders.Performance\DiceModders.Performance.csproj", "{7763D3A2-72DD-401A-BBAE-CBB09A705DBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceModders.UiTweaks", "src\DiceModders.UiTweaks\DiceModders.UiTweaks.csproj", "{8A887591-D30E-495D-A0E7-6A1F5D9EB6D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceModders.Disasters", "src\DiceModders.Disasters\DiceModders.Disasters.csproj", "{45D3A279-5AE4-48B5-B5C5-9EC635869B36}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F404FBA-EE50-4BCD-843E-5A4ACFC64D30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F404FBA-EE50-4BCD-843E-5A4ACFC64D30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F404FBA-EE50-4BCD-843E-5A4ACFC64D30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F404FBA-EE50-4BCD-843E-5A4ACFC64D30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CE7152A-82B9-455C-9AE9-BB2BA42B818C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CE7152A-82B9-455C-9AE9-BB2BA42B818C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CE7152A-82B9-455C-9AE9-BB2BA42B818C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CE7152A-82B9-455C-9AE9-BB2BA42B818C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7763D3A2-72DD-401A-BBAE-CBB09A705DBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7763D3A2-72DD-401A-BBAE-CBB09A705DBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7763D3A2-72DD-401A-BBAE-CBB09A705DBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7763D3A2-72DD-401A-BBAE-CBB09A705DBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A887591-D30E-495D-A0E7-6A1F5D9EB6D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A887591-D30E-495D-A0E7-6A1F5D9EB6D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A887591-D30E-495D-A0E7-6A1F5D9EB6D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A887591-D30E-495D-A0E7-6A1F5D9EB6D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45D3A279-5AE4-48B5-B5C5-9EC635869B36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45D3A279-5AE4-48B5-B5C5-9EC635869B36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45D3A279-5AE4-48B5-B5C5-9EC635869B36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45D3A279-5AE4-48B5-B5C5-9EC635869B36}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4F404FBA-EE50-4BCD-843E-5A4ACFC64D30} = {D0262BBF-D88B-408B-A0D6-ED117A519B64}
+		{2CE7152A-82B9-455C-9AE9-BB2BA42B818C} = {D0262BBF-D88B-408B-A0D6-ED117A519B64}
+		{7763D3A2-72DD-401A-BBAE-CBB09A705DBB} = {D0262BBF-D88B-408B-A0D6-ED117A519B64}
+		{8A887591-D30E-495D-A0E7-6A1F5D9EB6D8} = {D0262BBF-D88B-408B-A0D6-ED117A519B64}
+		{45D3A279-5AE4-48B5-B5C5-9EC635869B36} = {D0262BBF-D88B-408B-A0D6-ED117A519B64}
+	EndGlobalSection
+EndGlobal

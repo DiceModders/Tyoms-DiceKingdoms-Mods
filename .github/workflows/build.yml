@@ -1,0 +1,80 @@
+name: build
+
+# Builds every plugin in the solution. Push a tag like v1.2.0 to publish a GitHub release.
+#
+# The projects need the game's generated interop DLLs (BepInEx\interop). Those come from the game and must NOT be
+# committed to a public repo, so this workflow runs on a SELF-HOSTED runner on a PC that has Dice Kingdoms + BepInEx 6
+# installed. One-time runner setup is described in CONTRIBUTING.md:
+#   * runner label:  dicekingdoms
+#   * in the runner folder's ".env" file:  DICEKINGDOMS_DIR=D:\SteamLibrary\steamapps\common\Dice-Kingdoms
+#   * PowerShell 7 ("pwsh") installed on that PC
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Pull requests from forks are NOT built here: they would run contributors' code on the maintainer's PC.
+    # A maintainer can review the PR and run this workflow on a branch of this repo instead.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, windows, dicekingdoms]
+    permissions:
+      contents: write   # needed to create releases
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Link game interop assemblies
+        shell: pwsh
+        run: |
+          if (-not $env:DICEKINGDOMS_DIR) { throw "Set DICEKINGDOMS_DIR in the runner's .env file." }
+          .\scripts\link-interop.ps1 $env:DICEKINGDOMS_DIR
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '0.0.0-ci' }
+          dotnet build DiceKingdoms.Mods.sln -c Release "-p:Version=$version" "-p:NoWarn=NU1603"
+          if ($LASTEXITCODE -ne 0) { throw "Build failed." }
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $repo = $env:GITHUB_REPOSITORY.Split('/')[1]      # the zip is named after the repo, whatever it is called
+          $tag = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { "ci-" + $env:GITHUB_SHA.Substring(0, 7) }
+          $plugins = "dist\BepInEx\plugins"
+          New-Item -ItemType Directory -Force $plugins | Out-Null
+          Get-ChildItem src -Recurse -Filter "DiceModders.*.dll" |
+            Where-Object { $_.FullName -match "\\bin\\Release\\" } |
+            ForEach-Object { Copy-Item $_.FullName $plugins }
+          Get-ChildItem $plugins
+          # players unzip this straight into the game folder
+          Compress-Archive -Path "dist\BepInEx" -DestinationPath "$repo-$tag.zip" -Force
+          "ZIP_NAME=$repo-$tag.zip" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins
+          path: |
+            dist/BepInEx/plugins/*.dll
+            ${{ env.ZIP_NAME }}
+
+      - name: Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ env.ZIP_NAME }}
+            dist/BepInEx/plugins/*.dll
+          generate_release_notes: true

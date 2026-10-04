@@ -1,0 +1,13 @@
+<Project>
+  <!-- Stop early with a readable message if the game's interop assemblies are not linked. -->
+  <Target Name="CheckInterop" BeforeTargets="ResolveAssemblyReferences;CoreCompile"
+          Condition="!Exists('$(MSBuildThisFileDirectory)interop/UnityEngine.CoreModule.dll')">
+    <Error Text="Missing 'interop' folder (or it is empty). Install BepInEx 6 IL2CPP into the game, run the game once so BepInEx\interop is generated, then run scripts\link-interop.ps1 '&lt;game folder&gt;'. See README." />
+  </Target>
+
+  <!-- Optional: set DiceKingdomsDir (env var or -p:DiceKingdomsDir=...) to auto-copy the built plugin into the game. -->
+  <Target Name="CopyToGame" AfterTargets="Build" Condition="'$(DiceKingdomsDir)' != ''">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DiceKingdomsDir)/BepInEx/plugins" />
+    <Message Importance="high" Text="Copied $(TargetFileName) to $(DiceKingdomsDir)/BepInEx/plugins" />
+  </Target>
+</Project>

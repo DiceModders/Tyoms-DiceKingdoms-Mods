@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiceModders.Cheats</AssemblyName>
+    <RootNamespace>DiceModders.Cheats</RootNamespace>
+    <Description>Dev console unlock and gameplay cheats for Dice Kingdoms</Description>
+  </PropertyGroup>
+</Project>

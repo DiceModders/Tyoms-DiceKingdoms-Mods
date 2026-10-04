@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiceModders.IslandTools</AssemblyName>
+    <RootNamespace>DiceModders.IslandTools</RootNamespace>
+    <Description>Island save/load via clipboard, building dump and island radius for Dice Kingdoms</Description>
+  </PropertyGroup>
+</Project>
