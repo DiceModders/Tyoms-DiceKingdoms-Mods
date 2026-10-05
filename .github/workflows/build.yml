@@ -2,12 +2,14 @@ name: build
 
 # Builds every plugin in the solution. Push a tag like v1.2.0 to publish a GitHub release.
 #
-# The projects need the game's generated interop DLLs (BepInEx\interop). Those come from the game and must NOT be
-# committed to a public repo, so this workflow runs on a SELF-HOSTED runner on a PC that has Dice Kingdoms + BepInEx 6
-# installed. One-time runner setup is described in CONTRIBUTING.md:
-#   * runner label:  dicekingdoms
-#   * in the runner folder's ".env" file:  DICEKINGDOMS_DIR=D:\SteamLibrary\steamapps\common\Dice-Kingdoms
-#   * PowerShell 7 ("pwsh") installed on that PC
+# The projects compile against Unity / Il2Cpp interop DLLs that BepInEx generates from the game. They are NOT stored in
+# this public repo: they are fetched from a PRIVATE repo with a read-only deploy key kept in the repo secret
+# INTEROP_DEPLOY_KEY. Setup steps: CONTRIBUTING.md ("CI and the private interop repo").
+#
+# Security notes:
+#  * Pull requests from forks get no secrets (GitHub rule), so they cannot read the interop repo - they are skipped.
+#  * Never switch this to the pull_request_target event, and never check out untrusted PR code next to the secret.
+#  * Anyone with write access to THIS repo can read the secret through a workflow: keep write access to trusted people.
 
 on:
   push:
@@ -20,26 +22,36 @@ concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  INTEROP_REPO: DiceModders/Tyoms-DiceKingdoms-Interop
+
 jobs:
   build:
-    # Pull requests from forks are NOT built here: they would run contributors' code on the maintainer's PC.
-    # A maintainer can review the PR and run this workflow on a branch of this repo instead.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, windows, dicekingdoms]
+    runs-on: windows-latest
     permissions:
       contents: write   # needed to create releases
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check that the interop secret exists
+        shell: pwsh
+        env:
+          KEY: ${{ secrets.INTEROP_DEPLOY_KEY }}
+        run: |
+          if (-not $env:KEY) { throw "The secret INTEROP_DEPLOY_KEY is not set. See CONTRIBUTING.md." }
+
+      - name: Fetch interop assemblies (private repo)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.INTEROP_REPO }}
+          ssh-key: ${{ secrets.INTEROP_DEPLOY_KEY }}
+          path: interop
+          persist-credentials: false
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-
-      - name: Link game interop assemblies
-        shell: pwsh
-        run: |
-          if (-not $env:DICEKINGDOMS_DIR) { throw "Set DICEKINGDOMS_DIR in the runner's .env file." }
-          .\scripts\link-interop.ps1 $env:DICEKINGDOMS_DIR
 
       - name: Build
         shell: pwsh
@@ -55,6 +67,7 @@ jobs:
           $tag = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { "ci-" + $env:GITHUB_SHA.Substring(0, 7) }
           $plugins = "dist\BepInEx\plugins"
           New-Item -ItemType Directory -Force $plugins | Out-Null
+          # only OUR plugin DLLs go into the package - never anything from the interop folder
           Get-ChildItem src -Recurse -Filter "DiceModders.*.dll" |
             Where-Object { $_.FullName -match "\\bin\\Release\\" } |
             ForEach-Object { Copy-Item $_.FullName $plugins }

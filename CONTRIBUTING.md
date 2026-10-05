@@ -45,13 +45,29 @@ git push origin v1.1.0
 CI builds, creates `<repo-name>-v1.1.0.zip` (unzip into the game folder) and attaches it plus the single DLLs to a
 GitHub release.
 
-## CI runner (maintainers)
+## CI and the private interop repo (maintainers)
 
-CI needs the game's interop DLLs, so it runs on a self-hosted Windows runner (the `dicekingdoms` label) on a PC with
-the game and BepInEx 6 installed:
+The plugins compile against Unity / Il2Cpp interop DLLs that BepInEx generates from the game. They can not be in this
+public repo, so CI downloads them from a **private** repo (`Tyoms-DiceKingdoms-Interop`; the name is set in
+`.github/workflows/build.yml` as `INTEROP_REPO`) using a read-only deploy key stored as the secret `INTEROP_DEPLOY_KEY`.
+That repo holds only the Unity / Il2Cpp / system interop DLLs - **not** the game's own assemblies (`Assembly-CSharp`
+etc.), because our code finds game types by name at runtime.
 
-1. Org or repo **Settings -> Actions -> Runners -> New self-hosted runner -> Windows**; add the label `dicekingdoms`.
-2. Install PowerShell 7 (`winget install Microsoft.PowerShell`).
-3. In the runner folder create a file named `.env` containing
-   `DICEKINGDOMS_DIR=D:\SteamLibrary\steamapps\common\Dice-Kingdoms`, then restart the runner.
-4. Settings -> Actions -> General: set "Fork pull request workflows" to require approval, and keep forks off this runner.
+Rules: keep that repo private with forking disabled, give it to as few people as possible, and keep write access to this
+repo to trusted maintainers (a workflow can read the secret). Pull requests from forks get no secrets, so CI skips them;
+a maintainer can review the change and push it to a branch of this repo to get a build. Never switch the workflow to
+`pull_request_target`.
+
+**One-time setup**
+
+1. Create the private repo in the org (forking off), clone it next to this one, and fill it:
+   `.\scripts\export-interop.ps1 -GameDir "<game folder>" -OutDir "<clone folder>"`, then commit and push.
+2. Create a deploy key *without* a passphrase:
+   `cmd /c 'ssh-keygen -t ed25519 -C dicemodders-ci -f "%TEMP%\interop_ci" -N ""'`
+3. Private repo -> Settings -> Deploy keys -> Add: paste `interop_ci.pub`, leave "Allow write access" **off**.
+4. This repo -> Settings -> Secrets and variables -> Actions -> New repository secret `INTEROP_DEPLOY_KEY`: paste the
+   whole content of the private file `interop_ci` (including the BEGIN/END lines). Then delete both key files.
+5. Settings -> Actions -> General: require approval for workflows from outside collaborators.
+
+**After a game update:** start the game once so BepInEx regenerates `BepInEx\interop`, run `export-interop.ps1` into the
+clone again, commit and push. The next CI run uses it.

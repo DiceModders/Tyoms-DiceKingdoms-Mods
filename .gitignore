@@ -4,6 +4,12 @@ obj/
 *.user
 # symlink/junction to <game>/BepInEx/interop (see README)
 /interop
-.vscode/settings.json
+
 # remembers your game folder for scripts/build.ps1
 /.gamedir
+
+# game-derived files must never be committed here: packed interop zips belong in the private interop repo
+*.zip
+
+# editor settings that are personal to one machine
+/.vscode/settings.json

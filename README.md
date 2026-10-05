@@ -198,4 +198,4 @@ submodule / NuGet package).
   builds and releases it automatically.
 * **Release:** `git tag v1.1.0 && git push origin v1.1.0` - CI attaches `<repo-name>-v1.1.0.zip` (unzip into the
   game folder) and the single DLLs to a GitHub release.
-* More in [CONTRIBUTING.md](CONTRIBUTING.md) (setup, rules, CI runner).
+* More in [CONTRIBUTING.md](CONTRIBUTING.md) (setup, rules, CI and the private interop repo).
