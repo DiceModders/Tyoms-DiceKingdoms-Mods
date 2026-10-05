@@ -3,13 +3,14 @@ name: build
 # Builds every plugin in the solution. Push a tag like v1.2.0 to publish a GitHub release.
 #
 # The projects compile against Unity / Il2Cpp interop DLLs that BepInEx generates from the game. They are NOT stored in
-# this public repo: they are fetched from a PRIVATE repo with a read-only deploy key kept in the repo secret
-# INTEROP_DEPLOY_KEY. Setup steps: CONTRIBUTING.md ("CI and the private interop repo").
+# this public repo: they are fetched from a PRIVATE repo with a short-lived token minted by a GitHub App that can only
+# READ that one repo (variable INTEROP_APP_ID + secret INTEROP_APP_PRIVATE_KEY). Setup: CONTRIBUTING.md
+# ("CI and the private interop repo").
 #
 # Security notes:
 #  * Pull requests from forks get no secrets (GitHub rule), so they cannot read the interop repo - they are skipped.
 #  * Never switch this to the pull_request_target event, and never check out untrusted PR code next to the secret.
-#  * Anyone with write access to THIS repo can read the secret through a workflow: keep write access to trusted people.
+#  * Anyone with write access to THIS repo can use the app key through a workflow: keep write access to trusted people.
 
 on:
   push:
@@ -34,18 +35,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check that the interop secret exists
+      - name: Check that the interop credentials exist
         shell: pwsh
         env:
-          KEY: ${{ secrets.INTEROP_DEPLOY_KEY }}
+          APP_ID: ${{ vars.INTEROP_APP_ID }}
+          APP_KEY: ${{ secrets.INTEROP_APP_PRIVATE_KEY }}
         run: |
-          if (-not $env:KEY) { throw "The secret INTEROP_DEPLOY_KEY is not set. See CONTRIBUTING.md." }
+          if (-not $env:APP_ID)  { throw "The repository variable INTEROP_APP_ID is not set. See CONTRIBUTING.md." }
+          if (-not $env:APP_KEY) { throw "The secret INTEROP_APP_PRIVATE_KEY is not set. See CONTRIBUTING.md." }
+
+      - name: Get a short-lived token for the private interop repo
+        id: interop-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.INTEROP_APP_ID }}
+          private-key: ${{ secrets.INTEROP_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: Tyoms-DiceKingdoms-Interop
 
       - name: Fetch interop assemblies (private repo)
         uses: actions/checkout@v4
         with:
           repository: ${{ env.INTEROP_REPO }}
-          ssh-key: ${{ secrets.INTEROP_DEPLOY_KEY }}
+          token: ${{ steps.interop-token.outputs.token }}
           path: interop
           persist-credentials: false
 

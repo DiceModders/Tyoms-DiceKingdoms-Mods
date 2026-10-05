@@ -49,7 +49,8 @@ GitHub release.
 
 The plugins compile against Unity / Il2Cpp interop DLLs that BepInEx generates from the game. They can not be in this
 public repo, so CI downloads them from a **private** repo (`Tyoms-DiceKingdoms-Interop`; the name is set in
-`.github/workflows/build.yml` as `INTEROP_REPO`) using a read-only deploy key stored as the secret `INTEROP_DEPLOY_KEY`.
+`.github/workflows/build.yml` as `INTEROP_REPO`) using a GitHub App that can only read that one repo (its ID is the repository variable `INTEROP_APP_ID`, its private key the
+secret `INTEROP_APP_PRIVATE_KEY`). The workflow turns them into a short-lived token on every run.
 That repo holds only the Unity / Il2Cpp / system interop DLLs - **not** the game's own assemblies (`Assembly-CSharp`
 etc.), because our code finds game types by name at runtime.
 
@@ -62,12 +63,16 @@ a maintainer can review the change and push it to a branch of this repo to get a
 
 1. Create the private repo in the org (forking off), clone it next to this one, and fill it:
    `.\scripts\export-interop.ps1 -GameDir "<game folder>" -OutDir "<clone folder>"`, then commit and push.
-2. Create a deploy key *without* a passphrase:
-   `cmd /c 'ssh-keygen -t ed25519 -C dicemodders-ci -f "%TEMP%\interop_ci" -N ""'`
-3. Private repo -> Settings -> Deploy keys -> Add: paste `interop_ci.pub`, leave "Allow write access" **off**.
-4. This repo -> Settings -> Secrets and variables -> Actions -> New repository secret `INTEROP_DEPLOY_KEY`: paste the
-   whole content of the private file `interop_ci` (including the BEGIN/END lines). Then delete both key files.
-5. Settings -> Actions -> General: require approval for workflows from outside collaborators.
+2. Org -> Settings -> Developer settings -> GitHub Apps -> **New GitHub App**: any unique name, any homepage URL
+   (e.g. this repo), **untick Webhook -> Active**, Repository permissions -> **Contents: Read-only** (nothing else),
+   "Where can this app be installed" -> **Only on this account**. Create it.
+3. On the app's page: note the **App ID**, then **Generate a private key** (downloads a `.pem` file).
+4. App page -> **Install App** -> install on the org -> **Only select repositories** -> the private interop repo.
+5. This repo -> Settings -> Secrets and variables -> Actions:
+   * **Variables** tab -> `INTEROP_APP_ID` = the App ID,
+   * **Secrets** tab -> `INTEROP_APP_PRIVATE_KEY` = the whole content of the `.pem` file (BEGIN/END lines included).
+   Then delete the `.pem` file from your PC (or keep it only in a password manager).
+6. Settings -> Actions -> General: require approval for workflows from outside collaborators.
 
 **After a game update:** start the game once so BepInEx regenerates `BepInEx\interop`, run `export-interop.ps1` into the
 clone again, commit and push. The next CI run uses it.
